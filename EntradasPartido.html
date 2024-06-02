@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Control de Ventas</title>
+    <script>
+        let ventas = [];
+
+        function agregarVenta() {
+            let numeroFactura = document.getElementById("numeroFactura").value;
+            let cedula = document.getElementById("cedula").value;
+            let nombre = document.getElementById("nombre").value;
+            let localidad = document.getElementById("localidad").value;
+            let cantidadEntradas = parseInt(document.getElementById("cantidadEntradas").value);
+
+            if (cantidadEntradas < 1 || cantidadEntradas > 4) {
+                alert("La cantidad de entradas debe ser entre 1 y 4.");
+                return;
+            }
+
+            let precioPorEntrada, nombreLocalidad;
+            switch(localidad) {
+                case '1':
+                    precioPorEntrada = 10500;
+                    nombreLocalidad = "Sol Norte/Sur";
+                    break;
+                case '2':
+                    precioPorEntrada = 20500;
+                    nombreLocalidad = "Sombra Este/Oeste";
+                    break;
+                case '3':
+                    precioPorEntrada = 25500;
+                    nombreLocalidad = "Preferencial";
+                    break;
+                default:
+                    alert("Localidad inválida.");
+                    return;
+            }
+
+            let subtotal = cantidadEntradas * precioPorEntrada;
+            let cargosPorServicios = cantidadEntradas * 1000;
+            let totalPagar = subtotal + cargosPorServicios;
+
+            let venta = {
+                numeroFactura: numeroFactura,
+                cedula: cedula,
+                nombre: nombre,
+                nombreLocalidad: nombreLocalidad,
+                cantidadEntradas: cantidadEntradas,
+                subtotal: subtotal,
+                cargosPorServicios: cargosPorServicios,
+                totalPagar: totalPagar
+            };
+
+            ventas.push(venta);
+            mostrarVenta(venta);
+            limpiarFormulario();
+        }
+
+        function mostrarVenta(venta) {
+            let resultado = document.getElementById("resultado");
+            let ventaInfo = `
+                <p>Número de Factura: ${venta.numeroFactura}</p>
+                <p>Cédula: ${venta.cedula}</p>
+                <p>Nombre Comprador: ${venta.nombre}</p>
+                <p>Localidad: ${venta.nombreLocalidad}</p>
+                <p>Cantidad de Entradas: ${venta.cantidadEntradas}</p>
+                <p>Subtotal: ${venta.subtotal}</p>
+                <p>Cargos por Servicios: ${venta.cargosPorServicios}</p>
+                <p>Total a Pagar: ${venta.totalPagar}</p>
+                <hr>
+            `;
+            resultado.innerHTML += ventaInfo;
+        }
+
+        function limpiarFormulario() {
+            document.getElementById("numeroFactura").value = "";
+            document.getElementById("cedula").value = "";
+            document.getElementById("nombre").value = "";
+            document.getElementById("localidad").value = "";
+            document.getElementById("cantidadEntradas").value = "";
+        }
+
+        function mostrarEstadisticas() {
+            let estadisticas = {
+                solNorteSur: { cantidad: 0, acumulado: 0 },
+                sombraEsteOeste: { cantidad: 0, acumulado: 0 },
+                preferencial: { cantidad: 0, acumulado: 0 }
+            };
+
+            ventas.forEach(venta => {
+                switch(venta.nombreLocalidad) {
+                    case "Sol Norte/Sur":
+                        estadisticas.solNorteSur.cantidad += venta.cantidadEntradas;
+                        estadisticas.solNorteSur.acumulado += venta.subtotal;
+                        break;
+                    case "Sombra Este/Oeste":
+                        estadisticas.sombraEsteOeste.cantidad += venta.cantidadEntradas;
+                        estadisticas.sombraEsteOeste.acumulado += venta.subtotal;
+                        break;
+                    case "Preferencial":
+                        estadisticas.preferencial.cantidad += venta.cantidadEntradas;
+                        estadisticas.preferencial.acumulado += venta.subtotal;
+                        break;
+                }
+            });
+
+            let estadisticasInfo = `
+                <p>Cantidad Entradas Localidad Sol Norte/Sur: ${estadisticas.solNorteSur.cantidad}</p>
+                <p>Acumulado Dinero Localidad Sol Norte/Sur: ${estadisticas.solNorteSur.acumulado}</p>
+                <p>Cantidad Entradas Localidad Sombra Este/Oeste: ${estadisticas.sombraEsteOeste.cantidad}</p>
+                <p>Acumulado Dinero Localidad Sombra Este/Oeste: ${estadisticas.sombraEsteOeste.acumulado}</p>
+                <p>Cantidad Entradas Localidad Preferencial: ${estadisticas.preferencial.cantidad}</p>
+                <p>Acumulado Dinero Localidad Preferencial: ${estadisticas.preferencial.acumulado}</p>
+            `;
+
+            document.getElementById("estadisticas").innerHTML = estadisticasInfo;
+        }
+    </script>
+</head>
+<body>
+    <h1>Sistema de Control de Ventas</h1>
+    <form onsubmit="agregarVenta(); return false;">
+        <label for="numeroFactura">Número de Factura:</label>
+        <input type="text" id="numeroFactura" required><br><br>
+
+        <label for="cedula">Cédula:</label>
+        <input type="text" id="cedula" required><br><br>
+
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" required><br><br>
+
+        <label for="localidad">Localidad (1: Sol Norte/Sur, 2: Sombra Este/Oeste, 3: Preferencial):</label>
+        <input type="number" id="localidad" required><br><br>
+
+        <label for="cantidadEntradas">Cantidad de Entradas:</label>
+        <input type="number" id="cantidadEntradas" required><br><br>
+
+        <button type="submit">Agregar Venta</button>
+    </form>
+
+    <h2>Resultados de las Ventas</h2>
+    <div id="resultado"></div>
+
+    <button onclick="mostrarEstadisticas()">Mostrar Estadísticas</button>
+    <h2>Estadísticas</h2>
+    <div id="estadisticas"></div>
+</body>
+</html>
